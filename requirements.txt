@@ -1,0 +1,8 @@
+python-dotenv
+pydantic
+langgraph
+gradio
+langchain-core
+langchain-groq
+langchain-google-genai
+gtts

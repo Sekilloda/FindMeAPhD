@@ -1,8 +1,13 @@
 python-dotenv
 pydantic
+requests
+beautifulsoup4
+python-dateutil
+openai
+groq
 langgraph
 gradio
-langchain-core
-langchain-groq
-langchain-google-genai
 gtts
+google-api-python-client
+google-auth
+google-auth-oauthlib

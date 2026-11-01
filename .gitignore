@@ -6,6 +6,21 @@ env/
 # Environment Variables / Secrets
 .env
 .env.*
+credentials.json
+*credentials*.json
+client_secret*.json
+token.json
+*token*.json
+
+# Outbox queue (keep directories, ignore json items)
+outbox/*.json
+!outbox/.gitkeep
+outbox/sent/*.json
+!outbox/sent/.gitkeep
+
+# Log files
+*.log
+*.err
 
 # Databases and Generated Files
 db/*.db

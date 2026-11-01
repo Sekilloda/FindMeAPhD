@@ -1,30 +1,32 @@
 import os
+import urllib.request
 from dotenv import load_dotenv
 
-from groq import Groq
 from openai import OpenAI
 
-# Load API keys from .env file
+# Load API keys from .env file if present
 load_dotenv()
 
-# Live Models Available (August 2026)
-# The router will attempt the first tier, and if it encounters a rate limit or error, 
-# it will automatically fall back to the next tier in the list.
+LOCAL_URL = os.getenv("LOCAL_LLM_URL", "http://127.0.0.1:8080/v1")
+
+# Tiered models ranking: Local first, then fallbacks
 TIERED_MODELS = {
     "fast": [
-        # Fastest models for JSON extraction and simple logic
+        ("local", "qwen3.6-35b-a3b"),
         ("groq", "qwen/qwen3.6-27b"), 
         ("gemini", "gemini-3.5-flash-lite"),
         ("openrouter", "google/gemma-4-26b-a4b-it:free")
     ],
     "reasoning": [
-        # Capable reasoning models for grading and generating reports
+        ("local", "qwen3.6-35b-a3b"),
+        ("local", "qwen3.8-27b"),
         ("gemini", "gemini-3.5-flash"), 
         ("groq", "openai/gpt-oss-120b"),
         ("openrouter", "nvidia/nemotron-3-ultra-550b-a55b:free")
     ],
     "context": [
-        # Highest context window models for reading dense documentation
+        ("local", "qwen3.6-35b-a3b"),
+        ("local", "qwen3.8-27b"),
         ("gemini", "gemini-3.6-flash"), 
         ("openrouter", "nvidia/nemotron-3-super-120b-a12b:free"),
         ("groq", "openai/gpt-oss-20b")
@@ -33,12 +35,40 @@ TIERED_MODELS = {
 
 class LLMRouter:
     """
-    Custom built tiered router. Attempts API calls iteratively through ranked providers.
+    Tiered router: Attempts local llama-server first, then cascades to cloud APIs if available.
     """
     
     @staticmethod
+    def is_local_running() -> bool:
+        """Checks if local llama-server is responding at http://127.0.0.1:8080/health"""
+        try:
+            req = urllib.request.Request("http://127.0.0.1:8080/health")
+            with urllib.request.urlopen(req, timeout=1.0) as resp:
+                return resp.status in (200, 204)
+        except Exception:
+            return False
+
+    @staticmethod
+    def unload_models():
+        """
+        Frees unified memory by stopping any loaded model worker processes.
+        The router daemon on port 8080 remains listening and will reload models on demand.
+        """
+        try:
+            import subprocess
+            cmd = "ps -ef | grep 'llama-server' | grep -v 'models-preset' | grep -v grep | awk '{print $2}'"
+            res = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+            pids = res.stdout.strip().split()
+            for pid in pids:
+                if pid:
+                    subprocess.run(["kill", "-9", pid], check=False)
+            if pids:
+                print(f"[Router] Unloaded {len(pids)} model worker(s) and released memory back to macOS.")
+        except Exception as e:
+            print(f"[Router] Model unload check failed: {e}")
+
+    @staticmethod
     def get_completion(prompt: str = None, system_prompt: str = None, messages: list = None, task_type: str = "reasoning", json_mode: bool = False, max_tokens: int = 4000):
-        
         if messages is None:
             messages = []
             if system_prompt:
@@ -47,18 +77,28 @@ class LLMRouter:
                 messages.append({"role": "user", "content": prompt})
 
         tiers = TIERED_MODELS.get(task_type, TIERED_MODELS["fast"])
-        
         last_error = None
         
         for rank, (provider, model_name) in enumerate(tiers):
             print(f"[Router] Attempting Tier {rank + 1}: {provider} -> {model_name}")
             try:
                 result = None
-                if provider == "groq":
+                if provider == "local":
+                    result = LLMRouter._call_local(model_name, messages, json_mode, max_tokens)
+                elif provider == "groq":
+                    if not os.getenv("GROQ_API_KEY"):
+                        print("[Router] Skipping Groq (GROQ_API_KEY not configured)")
+                        continue
                     result = LLMRouter._call_groq(model_name, messages, json_mode, max_tokens)
                 elif provider == "gemini":
+                    if not os.getenv("GEMINI_API_KEY"):
+                        print("[Router] Skipping Gemini (GEMINI_API_KEY not configured)")
+                        continue
                     result = LLMRouter._call_gemini(model_name, messages, json_mode, max_tokens)
                 elif provider == "openrouter":
+                    if not os.getenv("OPENROUTER_API_KEY"):
+                        print("[Router] Skipping OpenRouter (OPENROUTER_API_KEY not configured)")
+                        continue
                     result = LLMRouter._call_openrouter(model_name, messages, json_mode, max_tokens)
                 else:
                     raise ValueError(f"Unknown provider: {provider}")
@@ -71,13 +111,35 @@ class LLMRouter:
             except Exception as e:
                 print(f"[Router] Tier {rank + 1} Failed ({provider}): {str(e)}")
                 last_error = str(e)
-                continue # Try the next tier
+                continue
                 
-        # If all tiers fail
         raise Exception(f"All model tiers exhausted. Last error: {last_error}")
 
     @staticmethod
+    def _call_local(model_name: str, messages: list, json_mode: bool, max_tokens: int):
+        client = OpenAI(
+            base_url=LOCAL_URL,
+            api_key="local-server",
+            timeout=180.0
+        )
+        kwargs = {
+            "model": model_name,
+            "messages": messages,
+            "max_tokens": max(max_tokens, 3500),
+            "temperature": 0.2
+        }
+        if json_mode:
+            kwargs["response_format"] = {"type": "json_object"}
+        response = client.chat.completions.create(**kwargs)
+        choice = response.choices[0]
+        content = choice.message.content
+        if not content and hasattr(choice.message, "reasoning_content"):
+            content = choice.message.reasoning_content
+        return content
+
+    @staticmethod
     def _call_groq(model_name: str, messages: list, json_mode: bool, max_tokens: int):
+        from groq import Groq
         client = Groq(api_key=os.getenv("GROQ_API_KEY"))
         kwargs = {
             "model": model_name,
@@ -87,13 +149,11 @@ class LLMRouter:
         }
         if json_mode:
             kwargs["response_format"] = {"type": "json_object"}
-            
         response = client.chat.completions.create(**kwargs)
         return response.choices[0].message.content
 
     @staticmethod
     def _call_gemini(model_name: str, messages: list, json_mode: bool, max_tokens: int):
-        # Gemini provides an OpenAI-compatible endpoint, making this boilerplate cleaner
         client = OpenAI(
             api_key=os.getenv("GEMINI_API_KEY"),
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
@@ -106,7 +166,6 @@ class LLMRouter:
         }
         if json_mode:
             kwargs["response_format"] = {"type": "json_object"}
-            
         response = client.chat.completions.create(**kwargs)
         return response.choices[0].message.content
 
@@ -122,11 +181,5 @@ class LLMRouter:
             "max_tokens": max_tokens,
             "temperature": 0.2
         }
-        
-        # OpenRouter handles JSON via system prompts mostly for free models, 
-        # but we can pass response_format if the underlying model supports it.
-        # To be safe and avoid 400 errors from specific models not supporting the arg,
-        # we will rely on the prompt instructing it for OpenRouter.
-            
         response = client.chat.completions.create(**kwargs)
         return response.choices[0].message.content

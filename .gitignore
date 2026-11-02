@@ -25,7 +25,9 @@ outbox/sent/*.json
 # Databases and Generated Files
 db/*.db
 db/reference_document.json
+applicant_profile.json
 final_ranking.md
+applications/
 
 # Python Caches
 __pycache__/

@@ -33,14 +33,26 @@ def init_db():
         status TEXT DEFAULT 'new',
         guide_path TEXT,
         secondary_urls TEXT,
+        calendar_event_id TEXT,
+        calendar_synced_at TIMESTAMP,
         discovered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         notified_at TIMESTAMP
     )
     """)
 
-    # Ensure secondary_urls column exists for existing databases
+    # Ensure supplemental columns exist for existing databases
     try:
         cursor.execute("ALTER TABLE offerings ADD COLUMN secondary_urls TEXT")
+    except Exception:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE offerings ADD COLUMN calendar_event_id TEXT")
+    except Exception:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE offerings ADD COLUMN calendar_synced_at TIMESTAMP")
     except Exception:
         pass
 

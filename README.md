@@ -39,7 +39,15 @@ For top-match postings ($\ge 7.5/10$), Hypatia synthesizes an application packag
 - **Cover Letter Strategy**: Structured outline highlighting Lund string model, QCD hadronization, or quantum witness circuit synergies.
 - **Red Flags & Inquiries**: Administrative, funding, or visa inquiries to raise early.
 
-### 5. Persistent Outbox Queue & Structured Signal
+### 5. Dynamic Google Calendar Deadlines ([`core/calendar_sync.py`](file:///Users/daniel/GitHub%20repos/FindMeAPhD/core/calendar_sync.py))
+While email alerts are great, their deadline counters (e.g. *"Only 10 days left"*) remain frozen relative to when the message was composed. 
+Hypatia integrates directly with **Google Calendar** to provide an **always-updated, dynamic point of reference**:
+- **Automatic All-Day Events**: Places bold, red-flagged events (`🚨 [Deadline] 🎓 [Score/10] Title - Institution`) on the exact deadline date.
+- **Dedicated Secondary Calendar**: Automatically creates and syncs to a dedicated `🎓 Hypatia PhD Deadlines` calendar, allowing you to toggle PhD deadlines on/off on your Mac, iPhone, or browser without cluttering personal events.
+- **Multi-Stage Preparation Reminders**: Configured with pop-up alarms 14 days, 7 days, 3 days, 1 day before, and at 9:00 AM on the day of the deadline.
+- **Full Dossier in Description**: Event description includes total match score, category breakdowns, direct application URLs, InspireHEP records, and application pointers.
+
+### 6. Persistent Outbox Queue & Structured Signal
 - **Zero Alert Loss**: If dispatch fails or internet is disconnected, alerts are serialized to [`outbox/*.json`](file:///Users/daniel/GitHub%20repos/FindMeAPhD/outbox).
 - **Auto-Flush**: Queued alerts are automatically dispatched at the start and end of every run.
 - **Sent Archive**: Successfully dispatched alerts are archived in [`outbox/sent/`](file:///Users/daniel/GitHub%20repos/FindMeAPhD/outbox/sent).
@@ -62,29 +70,26 @@ The **Gmail REST API** and **Gmail SMTP** communicate directly over headless TCP
 
 This method uses Google's official REST API with a minimal, send-only permission scope (`https://www.googleapis.com/auth/gmail.send`). It **cannot** read, delete, or search your inbox.
 
-#### Step 1: Download `credentials.json`
-1. Go to the [Google Cloud Console Credentials](https://console.cloud.google.com/apis/credentials).
-2. Create or select a Google Cloud project (e.g., `Hypatia PhD Monitor`).
-3. Under **APIs & Services $\to$ Enabled APIs**, ensure **Gmail API** is enabled.
-4. Click **Create Credentials $\to$ OAuth Client ID**.
-   - Application Type: **Desktop App**.
-   - Name: `Hypatia Monitor`.
-5. Download the credentials JSON file.
-6. Rename it to `credentials.json` and place it in the root of this project:
-   ```bash
-   /Users/daniel/GitHub repos/FindMeAPhD/credentials.json
-   ```
-   *(Note: This file is strictly excluded by `.gitignore` and will never be committed).*
+#### Step 1: Ensure Google Calendar API is Enabled
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/apis/dashboard).
+2. Under **Enabled APIs & Services**, ensure both **Gmail API** and **Google Calendar API** are enabled. (If Calendar is not enabled, click **+ Enable APIs and Services**, search for **Google Calendar API**, and click **Enable**).
+3. Ensure `credentials.json` is in the project root.
 
 #### Step 2: Authorize (One-Time)
-Run the setup utility:
+Run the setup utility to approve both Gmail dispatch and Google Calendar event management:
 ```bash
-./venv/bin/python scripts/setup_gmail.py --oauth
+./venv/bin/python scripts/setup_google.py --oauth
 ```
 - A browser window will open automatically.
-- Sign in with `daniel.programa.cometa@gmail.com` and approve the send-only permission.
-- The script automatically saves `token.json` with permissions locked to `600` (owner-only).
-- Hypatia is now fully authorized to send alerts headlessly forever (tokens refresh automatically).
+- Sign in with `daniel.programa.cometa@gmail.com` and approve permissions.
+- The script automatically updates `token.json` with permissions locked to `600` (owner-only).
+- Hypatia is now fully authorized to send alerts and create calendar deadlines headlessly forever.
+
+#### Step 3: Retroactively Sync Existing High-Fit Deadlines
+To instantly populate your Google Calendar with all high-scoring positions already discovered:
+```bash
+./venv/bin/python core/calendar_sync.py --sync
+```
 
 ---
 
@@ -105,19 +110,23 @@ If you prefer not to use the Google Cloud Console, you can generate a 16-charact
 
 ### Testing & Verification
 
-1. **Check Configuration Status**:
+1. **Check Configuration Status (Gmail + Calendar)**:
    ```bash
-   ./venv/bin/python scripts/setup_gmail.py --status
+   ./venv/bin/python scripts/setup_google.py --status
    ```
-2. **Send a Live Test Alert**:
+2. **Send a Live Test Alert (Email + Calendar Event)**:
    ```bash
-   ./venv/bin/python scripts/setup_gmail.py --test
+   ./venv/bin/python scripts/setup_google.py --test
    ```
-3. **Inspect the Outbox Queue**:
+3. **Retroactively Sync All High-Scoring Deadlines to Calendar**:
+   ```bash
+   ./venv/bin/python core/calendar_sync.py --sync
+   ```
+4. **Inspect the Outbox Queue**:
    ```bash
    ./venv/bin/python core/mailer.py --status
    ```
-4. **Manually Flush Pending Alerts**:
+5. **Manually Flush Pending Alerts**:
    ```bash
    ./venv/bin/python core/mailer.py --flush
    ```

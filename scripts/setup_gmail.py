@@ -29,8 +29,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_ROOT)
 
 from core.mailer import Mailer, DEFAULT_SENDER, DEFAULT_RECIPIENT, GMAIL_TOKEN_PATH, GMAIL_CREDS_PATH
-
-SCOPES = ["https://www.googleapis.com/auth/gmail.send"]
+from core.calendar_sync import CalendarSync, SCOPES
 
 
 def check_status():

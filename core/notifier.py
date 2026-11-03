@@ -3,6 +3,7 @@ import subprocess
 from datetime import datetime
 from typing import Dict, Any
 from core.mailer import Mailer
+from core.calendar_sync import CalendarSync
 
 ALERTS_MD_PATH = os.path.join(os.path.dirname(__file__), '..', 'phd_alerts.md')
 
@@ -10,7 +11,9 @@ class Notifier:
     """
     Handles notifications for high-scoring PhD vacancies:
     - Primary: Rich email alerts with full match details and application pointers.
-    - Secondary: Updates phd_alerts.md digest and optional desktop banners.
+    - Calendar: Populates Google Calendar with deadline events (dynamic point of reference).
+    - Digest: Updates phd_alerts.md digest.
+    - Secondary: Optional desktop banners.
     """
     
     @staticmethod
@@ -23,10 +26,18 @@ class Notifier:
         print(f"[Notifier] Dispatching email alert for: {title} ({institution})...")
         Mailer.send_phd_alert(offering, evaluation, guide_path)
         
-        # 2. Append to phd_alerts.md
+        # 2. Dynamic Point of Reference: Sync to Google Calendar
+        try:
+            cal_id = CalendarSync.sync_offering(offering, evaluation, guide_path)
+            if cal_id:
+                offering["calendar_event_id"] = cal_id
+        except Exception as cal_err:
+            print(f"[Notifier] Google Calendar sync skipped: {cal_err}")
+        
+        # 3. Append to phd_alerts.md
         Notifier._append_to_alerts_md(offering, evaluation, guide_path)
         
-        # 3. Optional desktop notification (default: False, enabled if DESKTOP_NOTIFICATIONS=true)
+        # 4. Optional desktop notification (default: False, enabled if DESKTOP_NOTIFICATIONS=true)
         if os.getenv("DESKTOP_NOTIFICATIONS", "false").lower() in ("true", "1", "yes"):
             Notifier._send_macos_notification(
                 title="🎓 High-Fit PhD Match Found!",

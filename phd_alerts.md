@@ -471,3 +471,27 @@
 - **Dossier**: [📖 Application & Cover Letter Guide](applications/84_phd_student_focusing_on_scalable_quantum_prog/application_guide.md) | [📄 Vacancy Details](applications/84_phd_student_focusing_on_scalable_quantum_prog/description.md)
 
 ---
+
+### [7.9/10] Two fully funded 3-year PhD positions in coupled-cluster theory development
+- **Institution**: Quantum Research Institution (Unspecified)
+- **Application Deadline**: **Monday, November 30, 2026**
+- **Discovered**: 2026-11-02 01:27
+- **Direct Link**: [https://www.quantiki.org/position/two-fully-funded-3-year-phd-positions-coupled-cluster-theory-development](https://www.quantiki.org/position/two-fully-funded-3-year-phd-positions-coupled-cluster-theory-development)
+- **InspireHEP Link**: [https://www.quantiki.org/position/two-fully-funded-3-year-phd-positions-coupled-cluster-theory-development](https://www.quantiki.org/position/two-fully-funded-3-year-phd-positions-coupled-cluster-theory-development)
+- **Score Breakdown**: Academic: 6.5 | Geography: 9.0 | Financial: 9.0
+- **Summary**: Geographically ideal (Austria/EU), fully aligning with citizenship and regional priority criteria. Financially strong, with a gross salary of €39,649/year well exceeding the €2,000/month net threshold. Academically, the position focuses on coupled-cluster theory for strongly correlated materials and photocatalysis. While it satisfies the candidate's preference for computational quantum physics, it diverges from their primary target of QCD phenomenology and quantum algorithms for particle physics, resulting in a moderate academic fit. Overall, a logistically and financially robust opportunity, though the research domain is condensed matter/quantum chemistry rather than high-energy physics.
+- **Dossier**: [📖 Application & Cover Letter Guide](applications/85_two_fully_funded_3_year_phd_positions_in_coup/application_guide.md) | [📄 Vacancy Details](applications/85_two_fully_funded_3_year_phd_positions_in_coup/description.md)
+
+---
+
+### [8.5/10] PhD Positions in Quantum Photonics & Quantum Information – Max Planck School of Photonics (Germany)
+- **Institution**: Quantum Research Institution (Unspecified)
+- **Application Deadline**: **Tuesday, December 1, 2026**
+- **Discovered**: 2026-11-03 13:33
+- **Direct Link**: [https://www.quantiki.org/position/phd-positions-quantum-photonics-quantum-information-max-planck-school-photonics-germany](https://www.quantiki.org/position/phd-positions-quantum-photonics-quantum-information-max-planck-school-photonics-germany)
+- **InspireHEP Link**: [https://www.quantiki.org/position/phd-positions-quantum-photonics-quantum-information-max-planck-school-photonics-germany](https://www.quantiki.org/position/phd-positions-quantum-photonics-quantum-information-max-planck-school-photonics-germany)
+- **Score Breakdown**: Academic: 8.5 | Geography: 9.0 | Financial: 7.5
+- **Summary**: Located in Germany (EU), matching the candidate's high-priority regional preferences and EU citizenship. Academically, it presents a strong fit for theoretical quantum information and computing, though it does not explicitly cover the candidate's preferred QCD/particle physics intersection. Financial terms are unstated but German PhD positions typically offer salaries well above the 2,000 EUR minimum, hence a standard EU score. Overall, a highly relevant and well-located opportunity for theoretical quantum research.
+- **Dossier**: [📖 Application & Cover Letter Guide](applications/89_phd_positions_in_quantum_photonics_quantum_in/application_guide.md) | [📄 Vacancy Details](applications/89_phd_positions_in_quantum_photonics_quantum_in/description.md)
+
+---

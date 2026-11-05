@@ -495,3 +495,15 @@
 - **Dossier**: [📖 Application & Cover Letter Guide](applications/89_phd_positions_in_quantum_photonics_quantum_in/application_guide.md) | [📄 Vacancy Details](applications/89_phd_positions_in_quantum_photonics_quantum_in/description.md)
 
 ---
+
+### [8.5/10] Multiple PhD Positions in Theoretical Particle Physics, Cosmology, and Astroparticle Physics
+- **Institution**: Astrocent Institute (International Institute for Particle Astrophysics of the Polish Academy of Sciences) (Astrocent Institute (International Institute for Particle Astrophysics of the Polish Academy of Sciences))
+- **Application Deadline**: **2026-12-10**
+- **Discovered**: 2026-11-05 17:14
+- **Direct Link**: [https://inspirehep.net/jobs/3222096](https://inspirehep.net/jobs/3222096)
+- **InspireHEP Link**: [https://inspirehep.net/jobs/3222096](https://inspirehep.net/jobs/3222096)
+- **Score Breakdown**: Academic: 8.5 | Geography: 9.0 | Financial: 7.5
+- **Summary**: Strong academic alignment with theoretical particle physics and cosmology, though not a direct match for the candidate's specific focus on QCD phenomenology and quantum algorithms. Located in Poland (EU), offering excellent geographic fit and standard EU funding conditions. The position is highly recommended pending verification of the exact salary against the >2000 EUR net monthly requirement.
+- **Dossier**: [📖 Application & Cover Letter Guide](applications/95_multiple_phd_positions_in_theoretical_particl/application_guide.md) | [📄 Vacancy Details](applications/95_multiple_phd_positions_in_theoretical_particl/description.md)
+
+---

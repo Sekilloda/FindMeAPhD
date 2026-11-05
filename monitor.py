@@ -40,7 +40,7 @@ def check_environment():
         print(f"[!] Error: Reference profile not found at {REF_DOC_PATH}")
         sys.exit(1)
         
-    local_up = LLMRouter.is_local_running()
+    local_up = LLMRouter.ensure_local_running()
     has_cloud_keys = any(os.getenv(k) for k in ["GROQ_API_KEY", "GEMINI_API_KEY", "OPENROUTER_API_KEY"])
     
     if local_up:

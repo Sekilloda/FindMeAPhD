@@ -49,6 +49,37 @@ class LLMRouter:
             return False
 
     @staticmethod
+    def ensure_local_running() -> bool:
+        """
+        Ensures local llama-server router is active.
+        If down, automatically spawns ~/Models/start-llama-router.sh in the background.
+        """
+        if LLMRouter.is_local_running():
+            return True
+
+        router_script = os.path.expanduser("~/Models/start-llama-router.sh")
+        if os.path.exists(router_script) and os.access(router_script, os.X_OK):
+            try:
+                import subprocess
+                import time
+                print("[Router] Local llama-server is not running. Auto-launching ~/Models/start-llama-router.sh...")
+                subprocess.Popen(
+                    [router_script],
+                    start_new_session=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+                for _ in range(12):
+                    time.sleep(0.5)
+                    if LLMRouter.is_local_running():
+                        print("[Router] [✓] Successfully launched local llama-server router on http://127.0.0.1:8080.")
+                        return True
+            except Exception as e:
+                print(f"[Router] Failed to auto-launch local llama-server: {e}")
+
+        return False
+
+    @staticmethod
     def unload_models():
         """
         Frees unified memory by stopping any loaded model worker processes.
